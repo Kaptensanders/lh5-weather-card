@@ -51,11 +51,11 @@ const windDirections = [
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "weather-card",
-  name: "Weather Card",
-  description: "A custom weather card with animated icons.",
+  type: "lh5-weather-card",
+  name: "LH5 Weather Card",
+  description: "Fork of the custom weather card.",
   preview: true,
-  documentationURL: "https://github.com/bramkragten/weather-card",
+  documentationURL: "https://github.com/Kaptensanders/lh5-weather-card",
 });
 
 const fireEvent = (node, type, detail, options) => {
@@ -88,7 +88,7 @@ function hasConfigOrEntityChanged(element, changedProps) {
   return true;
 }
 
-class WeatherCard extends LitElement {
+class LH5WeatherCard extends LitElement {
   static get properties() {
     return {
       _config: {},
@@ -532,4 +532,4 @@ class WeatherCard extends LitElement {
     `;
   }
 }
-customElements.define("weather-card", WeatherCard);
+customElements.define("lh5-weather-card", LH5WeatherCard);
