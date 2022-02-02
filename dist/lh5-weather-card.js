@@ -1,6 +1,7 @@
 const LitElement = customElements.get("ha-panel-lovelace") ? Object.getPrototypeOf(customElements.get("ha-panel-lovelace")) : Object.getPrototypeOf(customElements.get("hc-lovelace"));
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
+const unsafeCSS = LitElement.prototype.unsafeCSS
 
 const weatherIconsDay = {
   clear: "day",
@@ -97,8 +98,8 @@ class LH5WeatherCard extends LitElement {
   }
 
   static async getConfigElement() {
-    await import("./weather-card-editor.js");
-    return document.createElement("weather-card-editor");
+    await import("./lh5-weather-card-editor.js");
+    return document.createElement("lh5-weather-card-editor");
   }
 
   static getStubConfig(hass, unusedEntities, allEntities) {
@@ -127,7 +128,7 @@ class LH5WeatherCard extends LitElement {
 
     this.numberElements = 0;
 
-    const lang = this.hass.selectedLanguage || this.hass.language;
+    const lang = this._config.language ? this._config.language : this.hass.selectedLanguage || this.hass.language;
     const stateObj = this.hass.states[this._config.entity];
 
     if (!stateObj) {
@@ -292,7 +293,7 @@ class LH5WeatherCard extends LitElement {
                         ${daily.templow}${this.getUnit("temperature")}
                       </div>
                     `
-                  : ""}
+                  : html`<div class="lowTemp">&nbsp;</div>`}
                 ${!this._config.hide_precipitation &&
                 daily.precipitation !== undefined &&
                 daily.precipitation !== null
@@ -311,6 +312,16 @@ class LH5WeatherCard extends LitElement {
                       </div>
                     `
                   : ""}
+
+                ${!this._config.hide_wind &&
+                  daily.wind_speed !== undefined &&
+                  daily.wind_speed !== null
+                    ? html`
+                        <div class="wind_speed">
+                          ${Math.round(daily.wind_speed / 3.6)} ${this.getUnit("wind_speed")}
+                        </div>
+                      `
+                    : ""}
               </div>
             `
           )}
@@ -319,6 +330,7 @@ class LH5WeatherCard extends LitElement {
   }
 
   getWeatherIcon(condition, sun) {
+
     return `${
       this._config.icons
         ? this._config.icons
@@ -341,6 +353,8 @@ class LH5WeatherCard extends LitElement {
         return lengthUnit === "km" ? "mm" : "in";
       case "precipitation_probability":
         return "%";
+      case "wind_speed":
+        return "m/s"
       default:
         return this.hass.config.unit_system[measure] || "";
     }
@@ -365,6 +379,8 @@ class LH5WeatherCard extends LitElement {
         padding-left: 1em;
         padding-right: 1em;
         position: relative;
+        background: transparent;
+
       }
 
       .spacer {
@@ -467,7 +483,7 @@ class LH5WeatherCard extends LitElement {
         display: block;
         text-align: center;
         color: var(--primary-text-color);
-        border-right: 0.1em solid #d9d9d9;
+        /* border-right: 0.1em solid #d9d9d9; */
         line-height: 2;
         box-sizing: border-box;
       }
@@ -516,6 +532,9 @@ class LH5WeatherCard extends LitElement {
         background-position: center center;
         background-repeat: no-repeat;
         text-indent: -9999px;
+        -webkit-filter: grayscale(75%);
+        filter: grayscale(75%);
+
       }
 
       .weather {
